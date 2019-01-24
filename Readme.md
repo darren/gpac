@@ -17,3 +17,24 @@ This package provides a pure Go [pac](https://developer.mozilla.org/en-US/docs/W
  r,_ := pac.FindProxyForURL("http://www.example.com/")
  fmt.Println(r)
 ```
+
+## Simple wrapper for curl and wget
+
+There's a simple tool that wraps curl and wget for pac file support.
+
+
+### install
+
+```
+go get  github.com/darren/gpac/gpacw
+
+```
+
+### Usage
+
+```
+gpacw wpad.dat curl -v http://example.com
+gpacw http://wpad/wpad.dat wget -O /dev/null http://example.com
+```
+
+**note** url should be the last argument of the command or it will fail.
