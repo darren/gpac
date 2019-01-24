@@ -31,6 +31,10 @@ func (p *Proxy) URL() string {
 	}
 }
 
+func (p *Proxy) String() string {
+	return fmt.Sprintf("%s %s", p.Type, p.Address)
+}
+
 // ParseProxy parses proxy string returned by FindProxyForURL
 // and returns a slice of proxies
 func ParseProxy(pstr string) []*Proxy {

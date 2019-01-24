@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/robertkrimen/otto"
 )
@@ -99,4 +100,14 @@ func FromURL(urlstr string) (*Parser, error) {
 		return nil, err
 	}
 	return fromReader(resp.Body)
+}
+
+// From load pac from file or url
+func From(dst string) (*Parser, error) {
+	if strings.HasPrefix(dst, "http://") ||
+		strings.HasPrefix(dst, "https://") {
+		return FromURL(dst)
+	}
+
+	return FromFile(dst)
 }
