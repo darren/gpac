@@ -1,6 +1,7 @@
 package gpac
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -42,6 +43,39 @@ func (p *Parser) FindProxy(urlstr string) ([]*Proxy, error) {
 	}
 
 	return ParseProxy(ps), nil
+}
+
+// Get issues a GET to the specified URL via the proxy list found
+// it stops at the first proxy that succeeds
+func (p *Parser) Get(urlstr string) (*http.Response, error) {
+	req, err := http.NewRequest("GET", urlstr, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return p.Do(req)
+}
+
+// Do sends an HTTP request via a list of proxies found
+// it returns first HTTP response that succeeds
+func (p *Parser) Do(req *http.Request) (*http.Response, error) {
+	ps, err := p.FindProxyForURL(req.URL.String())
+	if err != nil {
+		return nil, err
+	}
+
+	proxies := ParseProxy(ps)
+	if len(proxies) == 0 {
+		return nil, errors.New("No Proxies found")
+	}
+
+	for _, proxy := range proxies {
+		resp, err := proxy.Do(req)
+		if err == nil {
+			return resp, nil
+		}
+	}
+	return nil, errors.New("No request via proxies succeeeds")
 }
 
 // New create a parser from text content

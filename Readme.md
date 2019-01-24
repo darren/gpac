@@ -18,6 +18,18 @@ This package provides a pure Go [pac](https://developer.mozilla.org/en-US/docs/W
  fmt.Println(r)
 ```
 
+gpac Get issues request via a list of proxies and  returns at the first request that succeeds:
+```go
+pac, _ := gpac.New(`
+    function FindProxyForURL(url, host) {
+        return "PROXY 127.0.0.1:9991; PROXY 127.0.0.1:9992; PROXY 127.0.0.1:8080; DIRECT"
+    }
+`)
+
+resp, err := pac.Get("http://www.example.com/")
+fmt.Println(resp.Status)
+```
+
 ## Simple wrapper for `curl` and `wget`
 
 There's a simple tool that wraps `curl` and `wget` for pac file support.

@@ -69,8 +69,8 @@ func (p *Proxy) Client() *http.Client {
 }
 
 // Get issues a GET to the specified URL via the proxy
-func (p *Proxy) Get(url string) (*http.Response, error) {
-	return p.Client().Get(url)
+func (p *Proxy) Get(urlstr string) (*http.Response, error) {
+	return p.Client().Get(urlstr)
 }
 
 // Do sends an HTTP request via the proxy and returns an HTTP response

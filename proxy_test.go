@@ -43,6 +43,17 @@ func TestParseProxy(t *testing.T) {
 	}
 }
 
+func readBodyAndClose(resp *http.Response) string {
+	defer resp.Body.Close()
+
+	buf, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return ""
+	}
+
+	return string(buf)
+}
+
 func testProxyGet(t *testing.T, typ string) {
 	t.Logf("Test proxy type: %s", typ)
 
@@ -58,15 +69,10 @@ func testProxyGet(t *testing.T, typ string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
 
-	buf, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		t.Error(err)
-	}
-
-	if string(buf) != "Example" {
-		t.Errorf("Response not expected: %s", string(buf))
+	body := readBodyAndClose(resp)
+	if body != "Example" {
+		t.Errorf("Response not expected: %s", body)
 	}
 }
 
@@ -79,15 +85,10 @@ func testClientGet(t *testing.T, typ string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
 
-	buf, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		t.Error(err)
-	}
-
-	if string(buf) != "Example" {
-		t.Errorf("Response not expected: %s", string(buf))
+	body := readBodyAndClose(resp)
+	if body != "Example" {
+		t.Errorf("Response not expected: %s", body)
 	}
 }
 

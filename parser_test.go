@@ -47,3 +47,26 @@ func TestProxyGet(t *testing.T) {
 		t.Error("Get URL from proxy failed")
 	}
 }
+
+// test start stared in proxy_test.go
+func TestPacGet(t *testing.T) {
+	pac, err := gpac.New(`
+        function FindProxyForURL(url, host) {
+            return "PROXY 127.0.0.1:9991; PROXY 127.0.0.1:9992; PROXY 127.0.0.1:8080; DIRECT"
+        }
+    `)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := pac.Get("http://localhost:8081")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	body := readBodyAndClose(resp)
+	if body != "Example" {
+		t.Errorf("Response not expected: %s", body)
+	}
+}
