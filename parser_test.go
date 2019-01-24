@@ -48,7 +48,7 @@ func TestProxyGet(t *testing.T) {
 	}
 }
 
-// test start stared in proxy_test.go
+// test server started in proxy_test.go
 func TestPacGet(t *testing.T) {
 	pac, err := gpac.New(`
         function FindProxyForURL(url, host) {
@@ -68,5 +68,17 @@ func TestPacGet(t *testing.T) {
 	body := readBodyAndClose(resp)
 	if body != "Example" {
 		t.Errorf("Response not expected: %s", body)
+	}
+}
+
+func BenchmarkFind(b *testing.B) {
+	pacf, _ := os.Open("testdata/wpad.dat")
+	defer pacf.Close()
+
+	data, _ := ioutil.ReadAll(pacf)
+	pac, _ := gpac.New(string(data))
+
+	for n := 0; n < b.N; n++ {
+		pac.FindProxyForURL("http://www.example.com/")
 	}
 }
