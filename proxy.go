@@ -1,6 +1,9 @@
 package gpac
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // Proxy is proxy type defined in pac file
 // like
@@ -14,6 +17,18 @@ type Proxy struct {
 // IsDirect test whether it is using direct connection
 func (p *Proxy) IsDirect() bool {
 	return p.Type == "DIRECT"
+}
+
+// URL return a url representation for the proxy
+func (p *Proxy) URL() string {
+	switch p.Type {
+	case "DIRECT":
+		return ""
+	case "PROXY":
+		return p.Address
+	default:
+		return fmt.Sprintf("%s://%s", strings.ToLower(p.Type), p.Address)
+	}
 }
 
 // ParseProxy parses proxy string returned by FindProxyForURL

@@ -40,6 +40,10 @@ func TestProxyGet(t *testing.T) {
 	}
 
 	if len(proxies) != 2 {
-		t.Error("Find proxy failed")
+		t.Fatal("Find proxy failed")
+	}
+
+	if proxies[1].URL() != "7.8.9.10:8080" {
+		t.Error("Get URL from proxy failed")
 	}
 }
