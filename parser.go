@@ -75,7 +75,7 @@ func (p *Parser) Do(req *http.Request) (*http.Response, error) {
 			return resp, nil
 		}
 	}
-	return nil, errors.New("No request via proxies succeeeds")
+	return nil, errors.New("No request via proxies succeeds")
 }
 
 // New create a parser from text content

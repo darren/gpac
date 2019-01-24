@@ -8,26 +8,29 @@ This package provides a pure Go [pac](https://developer.mozilla.org/en-US/docs/W
 ## Example usage
 
 ```go
- pac, _ := gpac.New(`
-     function FindProxyForURL(url, host) {
+package main
+
+import (
+	"fmt"
+
+	"github.com/darren/gpac"
+)
+
+func main() {
+	pac, _ := gpac.New(`
+      function FindProxyForURL(url, host) {
          if (isPlainHostName(host)) return DIRECT;
-         else return "PROXY 127.0.0.1:8080";
-     }
- `)
- r,_ := pac.FindProxyForURL("http://www.example.com/")
- fmt.Println(r)
-```
+         else return "PROXY 127.0.0.1:8080; PROXY 127.0.0.1:8081; DIRECT";
+      }
+    `)
 
-gpac Get issues request via a list of proxies and  returns at the first request that succeeds:
-```go
-pac, _ := gpac.New(`
-    function FindProxyForURL(url, host) {
-        return "PROXY 127.0.0.1:9991; PROXY 127.0.0.1:9992; PROXY 127.0.0.1:8080; DIRECT"
-    }
-`)
+	r, _ := pac.FindProxyForURL("http://www.example.com/")
+	fmt.Println(r) // returns PROXY 127.0.0.1:8080; PROXY 127.0.0.1:8081; DIRECT
 
-resp, err := pac.Get("http://www.example.com/")
-fmt.Println(resp.Status)
+	// Get issues request via a list of proxies and returns at the first request that succeeds
+	resp, _ := pac.Get("http://www.example.com/")
+	fmt.Println(resp.Status)
+}
 ```
 
 ## Simple wrapper for `curl` and `wget`
