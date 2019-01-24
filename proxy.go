@@ -2,7 +2,10 @@ package gpac
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
 	"strings"
+	"sync"
 )
 
 // Proxy is proxy type defined in pac file
@@ -12,14 +15,17 @@ import (
 type Proxy struct {
 	Type    string // Proxy type: PROXY HTTP HTTPS SOCKS DIRECT etc.
 	Address string // Proxy address
+
+	client *http.Client
+	once   sync.Once
 }
 
-// IsDirect test whether it is using direct connection
+// IsDirect tests whether it is using direct connection
 func (p *Proxy) IsDirect() bool {
 	return p.Type == "DIRECT"
 }
 
-// URL return a url representation for the proxy
+// URL returns a url representation for the proxy for curl -x
 func (p *Proxy) URL() string {
 	switch p.Type {
 	case "DIRECT":
@@ -29,6 +35,47 @@ func (p *Proxy) URL() string {
 	default:
 		return fmt.Sprintf("%s://%s", strings.ToLower(p.Type), p.Address)
 	}
+}
+
+// Proxy returns Proxy function that is ready use for http.Transport
+func (p *Proxy) Proxy() func(*http.Request) (*url.URL, error) {
+	var u *url.URL
+	var err error
+
+	switch p.Type {
+	case "DIRECT":
+		break
+	case "PROXY":
+		u, err = url.Parse(fmt.Sprintf("http://%s", p.Address))
+	default:
+		u, err = url.Parse(fmt.Sprintf("%s://%s", strings.ToLower(p.Type), p.Address))
+	}
+
+	return func(*http.Request) (*url.URL, error) {
+		return u, err
+	}
+}
+
+// Client returns an http.Client ready for use with this proxy
+func (p *Proxy) Client() *http.Client {
+	p.once.Do(func() {
+		p.client = &http.Client{
+			Transport: &http.Transport{
+				Proxy: p.Proxy(),
+			},
+		}
+	})
+	return p.client
+}
+
+// Get issues a GET to the specified URL via the proxy
+func (p *Proxy) Get(url string) (*http.Response, error) {
+	return p.Client().Get(url)
+}
+
+// Do sends an HTTP request via the proxy and returns an HTTP response
+func (p *Proxy) Do(req *http.Request) (*http.Response, error) {
+	return p.Client().Do(req)
 }
 
 func (p *Proxy) String() string {
