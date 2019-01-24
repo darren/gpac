@@ -18,16 +18,14 @@ This package provides a pure Go [pac](https://developer.mozilla.org/en-US/docs/W
  fmt.Println(r)
 ```
 
-## Simple wrapper for curl and wget
+## Simple wrapper for `curl` and `wget`
 
-There's a simple tool that wraps curl and wget for pac file support.
+There's a simple tool that wraps `curl` and `wget` for pac file support.
 
-
-### install
+### Install
 
 ```
 go get  github.com/darren/gpac/gpacw
-
 ```
 
 ### Usage
