@@ -1,7 +1,7 @@
 ## gpac
 
 [![GoDoc](https://godoc.org/github.com/darren/gpac?status.png)](https://godoc.org/github.com/darren/gpac)
-
+[![CircleCI](https://circleci.com/gh/darren/gpac.svg?style=svg)](https://circleci.com/gh/darren/gpac)
 
 This package provides a pure Go [pac](https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_(PAC)_file) parser based on [otto](https://github.com/robertkrimen/otto)
 
