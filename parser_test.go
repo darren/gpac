@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"testing"
 
 	"github.com/darren/gpac"
 )
@@ -20,4 +21,25 @@ func Example() {
 	fmt.Println(r)
 	// Output:
 	// PROXY 4.5.6.7:8080; PROXY 7.8.9.10:8080
+}
+
+func TestProxyGet(t *testing.T) {
+	pacf, _ := os.Open("testdata/wpad.dat")
+	defer pacf.Close()
+
+	data, _ := ioutil.ReadAll(pacf)
+
+	pac, err := gpac.New(string(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	proxies, err := pac.FindProxy("http://www.example.com/")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(proxies) != 2 {
+		t.Error("Find proxy failed")
+	}
 }

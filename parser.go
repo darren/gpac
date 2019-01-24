@@ -16,7 +16,9 @@ type Parser struct {
 	vm *otto.Otto
 }
 
-// FindProxyForURL  finding proxy for url
+// FindProxyForURL finding proxy for url
+// returns string like:
+// PROXY 4.5.6.7:8080; PROXY 7.8.9.10:8080; DIRECT
 func (p *Parser) FindProxyForURL(urlstr string) (string, error) {
 	u, err := url.Parse(urlstr)
 	if err != nil {
@@ -29,6 +31,16 @@ func (p *Parser) FindProxyForURL(urlstr string) (string, error) {
 		return "", err
 	}
 	return r.String(), nil
+}
+
+// FindProxy find the proxy in pac and return a list of Proxy
+func (p *Parser) FindProxy(urlstr string) ([]*Proxy, error) {
+	ps, err := p.FindProxyForURL(urlstr)
+	if err != nil {
+		return nil, err
+	}
+
+	return ParseProxy(ps), nil
 }
 
 // New create a parser from text content
