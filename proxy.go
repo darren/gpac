@@ -31,6 +31,14 @@ func (p *Proxy) IsDirect() bool {
 	return p.Type == "DIRECT"
 }
 
+// IsSOCKS test whether it is a socks proxy
+func (p *Proxy) IsSOCKS() bool {
+	if len(p.Type) >= 5 {
+		return p.Type[:5] == "SOCKS"
+	}
+	return false
+}
+
 // URL returns a url representation for the proxy for curl -x
 func (p *Proxy) URL() string {
 	switch p.Type {
@@ -74,11 +82,8 @@ func (p *Proxy) Dialer() func(ctx context.Context, network, addr string) (net.Co
 		}).DialContext
 	case "SOCKS5":
 		return func(ctx context.Context, network, address string) (net.Conn, error) {
-			d := socksNewDialer(network, address)
-			conn, err := d.DialContext(ctx, network, p.Address)
-			if err != nil {
-				conn.Close()
-			}
+			d := socksNewDialer(network, p.Address)
+			conn, err := d.DialContext(ctx, network, address)
 			return conn, err
 		}
 	case "PROXY", "HTTP":

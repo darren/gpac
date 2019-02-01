@@ -38,6 +38,10 @@ func TestParseProxy(t *testing.T) {
 		t.Error("Should be SOCKS5")
 	}
 
+	if !proxies[1].IsSOCKS() {
+		t.Error("Should be SOCKS5")
+	}
+
 	if !proxies[2].IsDirect() {
 		t.Error("Should be direct")
 	}
