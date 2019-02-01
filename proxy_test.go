@@ -92,11 +92,33 @@ func testClientGet(t *testing.T, typ string) {
 	}
 }
 
+func testTransport(t *testing.T, typ string) {
+	t.Logf("Test Transport proxy type: %s", typ)
+
+	var p = gpac.Proxy{Type: typ, Address: "127.0.0.1:8080"}
+
+	req, err := http.NewRequest("GET", "http://127.0.0.1:8081", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, err := p.Transport().RoundTrip(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	body := readBodyAndClose(resp)
+	if body != "Example" {
+		t.Errorf("Response not expected: %s", body)
+	}
+}
+
 func TestMultiProxyGet(t *testing.T) {
 	//BUG: SOCKS5 seems not work
 	knownTypes := []string{"DIRECT", "HTTP"}
 	for _, typ := range knownTypes {
 		testProxyGet(t, typ)
 		testClientGet(t, typ)
+		testTransport(t, typ)
 	}
 }

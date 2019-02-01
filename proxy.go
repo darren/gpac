@@ -73,6 +73,13 @@ func (p *Proxy) Get(urlstr string) (*http.Response, error) {
 	return p.Client().Get(urlstr)
 }
 
+// Transport get the http.RoundTripper
+func (p *Proxy) Transport() http.RoundTripper {
+	return &http.Transport{
+		Proxy: p.Proxy(),
+	}
+}
+
 // Do sends an HTTP request via the proxy and returns an HTTP response
 func (p *Proxy) Do(req *http.Request) (*http.Response, error) {
 	return p.Client().Do(req)
