@@ -1,11 +1,14 @@
 package gpac
 
 import (
+	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Proxy is proxy type defined in pac file
@@ -17,7 +20,10 @@ type Proxy struct {
 	Address string // Proxy address
 
 	client *http.Client
-	once   sync.Once
+	conce  sync.Once
+
+	tr    *http.Transport
+	tonce sync.Once
 }
 
 // IsDirect tests whether it is using direct connection
@@ -56,13 +62,60 @@ func (p *Proxy) Proxy() func(*http.Request) (*url.URL, error) {
 	}
 }
 
+var zeroDialer net.Dialer
+
+func (p *Proxy) Dialer() func(ctx context.Context, network, addr string) (net.Conn, error) {
+	switch p.Type {
+	case "DIRECT":
+		return (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+			DualStack: true,
+		}).DialContext
+	case "SOCKS5":
+		return func(ctx context.Context, network, address string) (net.Conn, error) {
+			d := socksNewDialer(network, address)
+			conn, err := d.DialContext(ctx, network, p.Address)
+			if err != nil {
+				conn.Close()
+			}
+			return conn, err
+		}
+	case "PROXY", "HTTP":
+		return func(ctx context.Context, network, address string) (net.Conn, error) {
+			conn, err := zeroDialer.DialContext(ctx, network, p.Address)
+
+			connectReq := &http.Request{
+				Method: "CONNECT",
+				URL:    &url.URL{Opaque: address},
+				Host:   address,
+				Header: make(http.Header),
+			}
+
+			connectReq.Write(conn)
+			return conn, err
+		}
+	default:
+		return func(ctx context.Context, network, address string) (net.Conn, error) {
+			return nil, fmt.Errorf("%s not support", p.Type)
+		}
+	}
+}
+
+func (p *Proxy) transport() *http.Transport {
+	p.tonce.Do(func() {
+		p.tr = &http.Transport{
+			Proxy: p.Proxy(),
+		}
+	})
+	return p.tr
+}
+
 // Client returns an http.Client ready for use with this proxy
 func (p *Proxy) Client() *http.Client {
-	p.once.Do(func() {
+	p.conce.Do(func() {
 		p.client = &http.Client{
-			Transport: &http.Transport{
-				Proxy: p.Proxy(),
-			},
+			Transport: p.transport(),
 		}
 	})
 	return p.client
@@ -74,10 +127,8 @@ func (p *Proxy) Get(urlstr string) (*http.Response, error) {
 }
 
 // Transport get the http.RoundTripper
-func (p *Proxy) Transport() http.RoundTripper {
-	return &http.Transport{
-		Proxy: p.Proxy(),
-	}
+func (p *Proxy) Transport() *http.Transport {
+	return p.transport()
 }
 
 // Do sends an HTTP request via the proxy and returns an HTTP response
