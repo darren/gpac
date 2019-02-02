@@ -47,6 +47,25 @@ func TestParseProxy(t *testing.T) {
 	}
 }
 
+func TestParseSOCKS(t *testing.T) {
+	proxy := "SOCKS5 127.0.0.1:1080"
+
+	proxies := gpac.ParseProxy(proxy)
+
+	if len(proxies) != 1 {
+		t.Error("Parse failed")
+		return
+	}
+
+	if !proxies[0].IsSOCKS() {
+		t.Error("Should be SOCKS5")
+	}
+
+	if proxies[0].IsDirect() {
+		t.Error("Should be direct")
+	}
+}
+
 func readBodyAndClose(resp *http.Response) string {
 	defer resp.Body.Close()
 
