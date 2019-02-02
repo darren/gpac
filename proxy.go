@@ -80,7 +80,7 @@ func (p *Proxy) Dialer() func(ctx context.Context, network, addr string) (net.Co
 			KeepAlive: 30 * time.Second,
 			DualStack: true,
 		}).DialContext
-	case "SOCKS5":
+	case "SOCKS", "SOCKS5":
 		return func(ctx context.Context, network, address string) (net.Conn, error) {
 			d := socksNewDialer(network, p.Address)
 			conn, err := d.DialContext(ctx, network, address)
