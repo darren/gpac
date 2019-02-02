@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/robertkrimen/otto"
 )
@@ -16,6 +17,7 @@ import (
 // Parser the parsed pac instance
 type Parser struct {
 	vm *otto.Otto
+	sync.Mutex
 }
 
 // FindProxyForURL finding proxy for url
@@ -28,7 +30,10 @@ func (p *Parser) FindProxyForURL(urlstr string) (string, error) {
 	}
 
 	f := fmt.Sprintf("FindProxyForURL('%s', '%s')", urlstr, u.Hostname())
+	p.Lock()
 	r, err := p.vm.Run(f)
+	p.Unlock()
+
 	if err != nil {
 		return "", err
 	}
@@ -89,7 +94,7 @@ func New(text string) (*Parser, error) {
 		return nil, err
 	}
 
-	return &Parser{vm}, nil
+	return &Parser{vm: vm}, nil
 }
 
 func registerBuiltinJS(vm *otto.Otto) {
