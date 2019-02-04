@@ -90,14 +90,15 @@ func (p *Proxy) Dialer() func(ctx context.Context, network, addr string) (net.Co
 		return func(ctx context.Context, network, address string) (net.Conn, error) {
 			conn, err := zeroDialer.DialContext(ctx, network, p.Address)
 
-			connectReq := &http.Request{
-				Method: "CONNECT",
-				URL:    &url.URL{Opaque: address},
-				Host:   address,
-				Header: make(http.Header),
+			if err == nil {
+				connectReq := &http.Request{
+					Method: "CONNECT",
+					URL:    &url.URL{Opaque: address},
+					Host:   address,
+					Header: make(http.Header),
+				}
+				connectReq.Write(conn)
 			}
-
-			connectReq.Write(conn)
 			return conn, err
 		}
 	default:
