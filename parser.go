@@ -16,7 +16,9 @@ import (
 
 // Parser the parsed pac instance
 type Parser struct {
-	vm *otto.Otto
+	vm  *otto.Otto
+	src string // the FindProxyForURL source code
+
 	sync.Mutex
 }
 
@@ -83,6 +85,11 @@ func (p *Parser) Do(req *http.Request) (*http.Response, error) {
 	return nil, errors.New("No request via proxies succeeds")
 }
 
+// Source returns the original javascript snippet of the pac
+func (p *Parser) Source() string {
+	return p.src
+}
+
 // New create a parser from text content
 func New(text string) (*Parser, error) {
 	vm := otto.New()
@@ -94,7 +101,7 @@ func New(text string) (*Parser, error) {
 		return nil, err
 	}
 
-	return &Parser{vm: vm}, nil
+	return &Parser{vm: vm, src: text}, nil
 }
 
 func registerBuiltinJS(vm *otto.Otto) {
