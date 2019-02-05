@@ -72,6 +72,7 @@ func (p *Proxy) Proxy() func(*http.Request) (*url.URL, error) {
 
 var zeroDialer net.Dialer
 
+// Dialer returns a Dial function that will connect to remote address
 func (p *Proxy) Dialer() func(ctx context.Context, network, addr string) (net.Conn, error) {
 	switch p.Type {
 	case "DIRECT":
