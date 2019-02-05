@@ -143,6 +143,9 @@ func (p *Proxy) Do(req *http.Request) (*http.Response, error) {
 }
 
 func (p *Proxy) String() string {
+	if p.IsDirect() {
+		return p.Type
+	}
 	return fmt.Sprintf("%s %s", p.Type, p.Address)
 }
 
