@@ -46,6 +46,19 @@ func TestProxyGet(t *testing.T) {
 	if proxies[1].URL() != "7.8.9.10:8080" {
 		t.Error("Get URL from proxy failed")
 	}
+
+	proxies, err = pac.FindProxy("http://localhost/")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(proxies) != 1 {
+		t.Fatalf("Find proxy failed %v", proxies)
+	}
+
+	if proxies[0].URL() != "DIRECT" {
+		t.Error("Get URL from proxy failed")
+	}
 }
 
 // test server started in proxy_test.go
