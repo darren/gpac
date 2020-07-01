@@ -11,12 +11,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/robertkrimen/otto"
+	"github.com/dop251/goja"
 )
 
 // Parser the parsed pac instance
 type Parser struct {
-	vm  *otto.Otto
+	vm  *goja.Runtime
 	src string // the FindProxyForURL source code
 
 	sync.Mutex
@@ -33,7 +33,7 @@ func (p *Parser) FindProxyForURL(urlstr string) (string, error) {
 
 	f := fmt.Sprintf("FindProxyForURL('%s', '%s')", urlstr, u.Hostname())
 	p.Lock()
-	r, err := p.vm.Run(f)
+	r, err := p.vm.RunString(f)
 	p.Unlock()
 
 	if err != nil {
@@ -92,11 +92,11 @@ func (p *Parser) Source() string {
 
 // New create a parser from text content
 func New(text string) (*Parser, error) {
-	vm := otto.New()
+	vm := goja.New()
 	registerBuiltinNatives(vm)
 	registerBuiltinJS(vm)
 
-	_, err := vm.Run(text)
+	_, err := vm.RunString(text)
 	if err != nil {
 		return nil, err
 	}
@@ -104,19 +104,16 @@ func New(text string) (*Parser, error) {
 	return &Parser{vm: vm, src: text}, nil
 }
 
-func registerBuiltinJS(vm *otto.Otto) {
-	_, err := vm.Run(builtinJS)
+func registerBuiltinJS(vm *goja.Runtime) {
+	_, err := vm.RunString(builtinJS)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func registerBuiltinNatives(vm *otto.Otto) {
+func registerBuiltinNatives(vm *goja.Runtime) {
 	for name, function := range builtinNatives {
-		err := vm.Set(name, function)
-		if err != nil {
-			panic(err)
-		}
+		vm.Set(name, function(vm))
 	}
 }
 
