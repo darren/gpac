@@ -47,17 +47,40 @@ func TestProxyGet(t *testing.T) {
 		t.Error("Get URL from proxy failed")
 	}
 
-	proxies, err = pac.FindProxy("http://localhost/")
+}
+
+func TestProxyGetDirect(t *testing.T) {
+	dsts := []string{
+		"http://localhost/",
+		"https://intranet.domain.com",
+		"http://abcdomain.com",
+		"http://www.abcdomain.com",
+		"ftp://example.com.com",
+	}
+
+	pacf, _ := os.Open("testdata/wpad.dat")
+	defer pacf.Close()
+
+	data, _ := ioutil.ReadAll(pacf)
+
+	pac, err := gpac.New(string(data))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if len(proxies) != 1 {
-		t.Fatalf("Find proxy failed %v", proxies)
-	}
+	for _, dst := range dsts {
+		proxies, err := pac.FindProxy(dst)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	if proxies[0].URL() != "DIRECT" {
-		t.Error("Get URL from proxy failed")
+		if len(proxies) != 1 {
+			t.Fatalf("Find proxy failed for %s", dst)
+		}
+
+		if proxies[0].URL() != "" {
+			t.Errorf("Get URL from proxy failed: %s, proxies: %+v", dst, proxies)
+		}
 	}
 }
 
