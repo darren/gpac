@@ -116,5 +116,7 @@ func BenchmarkFind(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 		pac.FindProxyForURL("http://www.example.com/")
+		pac.FindProxyForURL("http://localhost/")
+		pac.FindProxyForURL("http://192.168.1.1/")
 	}
 }

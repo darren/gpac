@@ -24,7 +24,7 @@ func dnsResolve(vm *goja.Runtime) func(call goja.FunctionCall) goja.Value {
 			return goja.Null()
 		}
 
-		return goja.New().ToValue(ips[0].String())
+		return vm.ToValue(ips[0].String())
 	}
 }
 
@@ -49,7 +49,7 @@ func myIPAddress(vm *goja.Runtime) func(call goja.FunctionCall) goja.Value {
 				ip, ok := addr.(*net.IPNet)
 				if ok && ip.IP.IsGlobalUnicast() {
 					ipstr := ip.IP.String()
-					return goja.New().ToValue(ipstr)
+					return vm.ToValue(ipstr)
 				}
 			}
 		}
