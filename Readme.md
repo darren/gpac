@@ -1,6 +1,6 @@
 ## gpac
 
-![PkgGoDev](https://pkg.go.dev/badge/github.com/darren/gpac)](https://pkg.go.dev/github.com/darren/gpac)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/darren/gpac)](https://pkg.go.dev/github.com/darren/gpac)
 
 This package provides a pure Go [pac](https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_(PAC)_file) parser based on [otto](https://github.com/robertkrimen/otto)
 
